@@ -1,18 +1,13 @@
-import express from 'express';
+// import express from 'express';
 import axios from 'axios';
- const app = express();
-
-
-
+// import * as express from 'express'
+// const express = require('express');
+// const express = __non_webpack_require__('express');
+const fastify = require('fastify')({ logger: true })
+const app = fastify();
 
 // app.use(express.urlencoded({ extended: false }));
 // app.use(express.json());
-
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true}))
-
-
-
 
 // get all cows //
 const getAllCows = async => {
@@ -33,6 +28,7 @@ const getAllCows = async => {
   }
 };
 
+
 //Display all cows
 const displayAllCows = (res, cow) => {
   if (cow.status === 'error') {
@@ -43,6 +39,7 @@ const displayAllCows = (res, cow) => {
   console.log(cow.properties);
   res.write(`<p>Cow Details: ${id.value} ${collarId.value} ${cowNumber.value} ${collarStatus.value} ${lastLocation.value} ${lat.value} ${long.value}</p>`);
 };
+
 
 //Create new cow
 app.post("/", async (req, res) => {
@@ -84,8 +81,40 @@ console.log(body);
   }
 });
 
+//Update a cow
+app.put("/", async (req, res) => {
+  try {
+     const updateCow = ({
+      id: req.body.id,
+      collarId: req.body.collarId,
+      cowNumber: req.body.cowNumber,
+      collarStatus: req.body.collarStatus,
+      lastLocation: req.body.lastLocation,
+      lat: req.body.lat,
+      long: req.body.long,
+     });
+console.log(updateCow);
+const options = {
+method: 'PUT',
+    url: `https://5d96585ca824b400141d26b2.mockapi.io/halter/device/1/status`,
+ headers: {
+accept: 'application/json',
+'content-type': 'application/json',
+   },
+json: true
+};
 
+axios(options, function (error, response, body) {
+if (error) throw new Error(error);
 
+console.log(body);
+});
+    res.status(201).json("OK - Cow updated");
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("There is an error").end();
+  }
+});
 
 
 // display cows
@@ -93,8 +122,7 @@ app.get('/', async (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.write(`<h2>Cow test  `);
 
-    const cows = await getAllCows();
-    
+    const cows = getAllCows();
     displayAllCows(res, cows);
 
   res.end();
