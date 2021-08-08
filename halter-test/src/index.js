@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
+import axios from 'axios';
  const app = express();
-const axios = require('axios').default;
 
 
 
@@ -44,10 +44,51 @@ const displayAllCows = (res, cow) => {
   res.write(`<p>Cow Details: ${id.value} ${collarId.value} ${cowNumber.value} ${collarStatus.value} ${lastLocation.value} ${lat.value} ${long.value}</p>`);
 };
 
+//Create new cow
+app.post("/", async (req, res) => {
+  try {
+     const newCow = req.body;
+console.log(newCow);
+const options = {
+method: 'POST',
+    url: `https://5d96585ca824b400141d26b2.mockapi.io/halter/device/1/status`,
+ headers: {
+accept: 'application/json',
+'content-type': 'application/json',
+   },
+body: {
+     properties: {  
+
+id: newCow.id,
+collarId: newCow.collarId,
+cowNumber: newCow.cowNumber,
+collarStatus: newCow.collarStatus,
+lastLocation: newCow.lastLocation,
+lat: newCow.lat,
+long: newCow.long,
+
+ }
+  },
+json: true
+};
+
+axios(options, function (error, response, body) {
+if (error) throw new Error(error);
+
+console.log(body);
+});
+    res.status(201).json("OK - New cow created");
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("There is an error").end();
+  }
+});
 
 
 
 
+
+// display cows
 app.get('/', async (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.write(`<h2>Cow test  `);
@@ -69,4 +110,4 @@ app.get('/error', (req, res) => {
 // opn(`http://localhost:${PORT}`);
 
 
-module.exports = app;
+export default app;
